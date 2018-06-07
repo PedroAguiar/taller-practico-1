@@ -4,14 +4,16 @@ public abstract class Persona {
     private int id;
     private String nombre;
     private String apellido;
+    private int dni;
     
     public Persona() {
     }
     
-    public Persona(int id, String nombre, String apellido) {
+    public Persona(int id, String nombre, String apellido, int dni) {
         this.id = id;
         this.nombre = nombre;
         this.apellido = apellido;
+        this.dni = dni;
     }
     
     public int getId() {
@@ -36,5 +38,13 @@ public abstract class Persona {
     
     public void setApellido(String apellido) {
         this.apellido = apellido;
+    }
+
+    public int getDni() {
+        return dni;
+    }
+
+    public void setDni(int dni) {
+        this.dni = dni;
     }
 }

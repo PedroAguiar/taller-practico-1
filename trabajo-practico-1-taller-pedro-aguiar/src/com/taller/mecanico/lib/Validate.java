@@ -3,7 +3,6 @@ package com.taller.mecanico.lib;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 /**
  * <p>This class assists in validating arguments. The validation methods are
@@ -41,6 +40,8 @@ public final class Validate {
     private static final String DEFAULT_NOT_EMPTY_MAP_EX_MESSAGE = "The validated map is empty";
     private static final String DEFAULT_IS_ASSIGNABLE_EX_MESSAGE = "Cannot assign a %s to a %s";
     private static final String DEFAULT_IS_INSTANCE_OF_EX_MESSAGE = "Expected type: %s, actual: %s";
+    private static final String DEFAULT_CONTAINS_INVALID_CHARACTERS_EX_MESSAGE = "The validated object: %s contains invalid characters";
+    private static final String DEFAULT_IS_NOT_VALID_ARGENTINIAN_DNI_EX_MESSAGE = "The validated string is not a valid Argentinaian DNI";
     
     /**
      * Utility class, private constructor
@@ -711,5 +712,90 @@ public final class Validate {
         if (!superType.isAssignableFrom(type)) {
             throw new IllegalArgumentException(String.format(message, values));
         }
+    }
+
+    /**
+     * Validates that the argument string contains only letters, if not throws and exception.
+     *
+     * <p>This method is useful when validating non alphanumeric input</p>
+     *
+     * <pre>Validate.containsOnlyLetters("125BAS")</pre>
+     *
+     * <p>The message of the exception is &quot;The validated object contains invalid characters&quot;</p>
+     * @param value the string to be validated
+     * @throws IllegalArgumentException if argument does not contain only letter chars
+     */
+    public static void containsOnlyLetters(final String value) {
+        containsOnlyLetters(value, DEFAULT_CONTAINS_INVALID_CHARACTERS_EX_MESSAGE);
+    }
+
+    /**
+     * Validates that the argument string contains only letters, if not throws and exception.
+     *
+     * <p>This method is useful when validating non alphanumeric input</p>
+     *
+     * <pre>Validate.containsOnlyLetters("125BAS")</pre>
+     *
+     * <p>The message of the exception is &quot;The validated object contains invalid characters&quot;</p>
+     * @param value the string to be validated
+     * @param message the {@link String#format(String, Object...)} exception message if invalid, not null
+     * @throws IllegalArgumentException if argument does not contain only letter chars
+     */
+    public static void containsOnlyLetters(final String value, final String message) {
+        if (value != null && !value.matches("[a-zA-Z]")) {
+            throw new IllegalArgumentException(String.format(message, value));
+        }
+    }
+
+    /**
+     * Validates that the argument string contains only letters, if not throws and exception.
+     *
+     * <p>This method is useful when validating non alphanumeric input</p>
+     *
+     * <pre>Validate.containsOnlyLetters("125BAS")</pre>
+     *
+     * <p>The message of the exception is &quot;The validated object contains invalid characters&quot;</p>
+     * @param values the strings to be validated
+     * @throws IllegalArgumentException if argument does not contain only letter chars
+     */
+    public static void containsOnlyLetters(final String[] values) {
+        for (String value : values) {
+            containsOnlyLetters(value, DEFAULT_CONTAINS_INVALID_CHARACTERS_EX_MESSAGE);
+        }
+    }
+
+    /**
+     * Validates that the argument string contains only letters, if not throws and exception.
+     *
+     * <p>This method is useful when validating non alphanumeric input</p>
+     *
+     * <pre>Validate.containsOnlyLetters("125BAS")</pre>
+     *
+     * <p>The message of the exception is &quot;The validated object contains invalid characters&quot;</p>
+     * @param values the strings to be validated
+     * @param message the {@link String#format(String, Object...)} exception message if invalid, not null
+     * @throws IllegalArgumentException if argument does not contain only letter chars
+     */
+    public static void containsOnlyLetters(final String[] values, final String message) {
+        for (String value : values) {
+            containsOnlyLetters(value, message);
+        }
+    }
+
+    /**
+     * Validates that the argument string is a valid argentinian DNI, if not throws and exception.
+     *
+     * <p>This method is useful when validating argentinian DNI input</p>
+     *
+     * <pre>Validate.isDNI("1206548")</pre>
+     *
+     * <p>The message of the exception is &quot;The validated object is not a valid Argentinian DNI&quot;</p>
+     * @param value the strings to be validated
+     * @throws IllegalArgumentException if argument does not contain only letter chars
+     */
+    public static void isDNI(String value) {
+        Validate.notNull(value);
+        if (!value.matches("[0-9]{8}"))
+            throw new IllegalArgumentException(DEFAULT_IS_NOT_VALID_ARGENTINIAN_DNI_EX_MESSAGE);
     }
 }

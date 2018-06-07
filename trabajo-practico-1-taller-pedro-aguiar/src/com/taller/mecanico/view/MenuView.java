@@ -1,10 +1,13 @@
 package com.taller.mecanico.view;
 
+import com.taller.mecanico.model.Automovil;
+import com.taller.mecanico.model.Motocicleta;
+
 /**
  * This class provides common menu forms, should not handle any business logic
  */
 public class MenuView {
-    
+
     /**
      * Constructor, this class should not normally be instantiated
      */
@@ -21,7 +24,9 @@ public class MenuView {
         System.out.println("1) Nombre");
         System.out.println("2) Apellido");
         System.out.println("3) DNI");
-        System.out.println("4) Tipo de Vehiculo");
+        System.out.println("4) Tipo de Vehiculo, valores posibles:" +
+                Automovil.class.getSimpleName() + ", " +
+                Motocicleta.class.getSimpleName());
     }
     
     public static void displayVehicleRegistrationForm() {
