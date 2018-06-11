@@ -1,7 +1,9 @@
 package com.taller.mecanico.model;
 
+import java.util.UUID;
+
 public abstract class Persona {
-    private int id;
+    private UUID id = UUID.randomUUID();
     private String nombre;
     private String apellido;
     private int dni;
@@ -9,18 +11,17 @@ public abstract class Persona {
     public Persona() {
     }
     
-    public Persona(int id, String nombre, String apellido, int dni) {
-        this.id = id;
+    public Persona(String nombre, String apellido, int dni) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.dni = dni;
     }
     
-    public int getId() {
+    public UUID getId() {
         return id;
     }
     
-    public void setId(int id) {
+    public void setId(UUID id) {
         this.id = id;
     }
     

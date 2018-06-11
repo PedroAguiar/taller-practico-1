@@ -1,5 +1,8 @@
 package com.taller.mecanico.lib;
 
+import com.taller.mecanico.model.TipoDeVehiculo;
+import com.taller.mecanico.model.exception.VehicleTypeNotFound;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -41,8 +44,11 @@ public final class Validate {
     private static final String DEFAULT_IS_ASSIGNABLE_EX_MESSAGE = "Cannot assign a %s to a %s";
     private static final String DEFAULT_IS_INSTANCE_OF_EX_MESSAGE = "Expected type: %s, actual: %s";
     private static final String DEFAULT_CONTAINS_INVALID_CHARACTERS_EX_MESSAGE = "The validated object: %s contains invalid characters";
-    private static final String DEFAULT_IS_NOT_VALID_ARGENTINIAN_DNI_EX_MESSAGE = "The validated string is not a valid Argentinaian DNI";
-    
+    private static final String DEFAULT_IS_NOT_VALID_ARGENTINIAN_DNI_EX_MESSAGE = "The validated string is not a valid Argentinian DNI";
+    private static final String DEFAULT_IS_NOT_VALID_PLATE =  "The validated input is not a valid plate: %s";
+    private static final String DEFAULT_IS_NOT_ONLY_NUMBER_STRING_EX_MESSAGE = "The validated string does not contain only numbers: %s";
+    private static final String DEFAULT_IS_NOT_VALID_BOOLEAN_EXPRESSION_EX_MESSAGE = "The validated string is not a valid boolean expression: %s";
+
     /**
      * Utility class, private constructor
      */
@@ -242,56 +248,7 @@ public final class Validate {
     public static <T> T[] notEmpty(final T[] array) {
         return notEmpty(array, DEFAULT_NOT_EMPTY_ARRAY_EX_MESSAGE);
     }
-    
-    // notEmpty collection
-    //---------------------------------------------------------------------------------
-    
-    /**
-     * <p>Validate that the specified argument collection is neither {@code null}
-     * nor a size of zero (no elements); otherwise throwing an exception
-     * with the specified message.
-     *
-     * <pre>Validate.notEmpty(myCollection, "The collection must not be empty");</pre>
-     *
-     * @param <T> the collection type
-     * @param collection  the collection to check, validated not null by this method
-     * @param message  the {@link String#format(String, Object...)} exception message if invalid, not null
-     * @param values  the optional values for the formatted exception message, null array not recommended
-     * @return the validated collection (never {@code null} method for chaining)
-     * @throws NullPointerException if the collection is {@code null}
-     * @throws IllegalArgumentException if the collection is empty
-     * @see #notEmpty(Object[])
-     */
-    public static <T extends Collection<?>> T notEmpty(final T collection, final String message, final Object... values) {
-        if (collection == null) {
-            throw new NullPointerException(String.format(message, values));
-        }
-        if (collection.isEmpty()) {
-            throw new IllegalArgumentException(String.format(message, values));
-        }
-        return collection;
-    }
-    
-    /**
-     * <p>Validate that the specified argument collection is neither {@code null}
-     * nor a size of zero (no elements); otherwise throwing an exception.
-     *
-     * <pre>Validate.notEmpty(myCollection);</pre>
-     *
-     * <p>The message in the exception is &quot;The validated collection is
-     * empty&quot;.</p>
-     *
-     * @param <T> the collection type
-     * @param collection  the collection to check, validated not null by this method
-     * @return the validated collection (never {@code null} method for chaining)
-     * @throws NullPointerException if the collection is {@code null}
-     * @throws IllegalArgumentException if the collection is empty
-     * @see #notEmpty(Collection, String, Object...)
-     */
-    public static <T extends Collection<?>> T notEmpty(final T collection) {
-        return notEmpty(collection, DEFAULT_NOT_EMPTY_COLLECTION_EX_MESSAGE);
-    }
-    
+
     // notEmpty map
     //---------------------------------------------------------------------------------
     
@@ -320,27 +277,7 @@ public final class Validate {
         }
         return map;
     }
-    
-    /**
-     * <p>Validate that the specified argument map is neither {@code null}
-     * nor a size of zero (no elements); otherwise throwing an exception.
-     *
-     * <pre>Validate.notEmpty(myMap);</pre>
-     *
-     * <p>The message in the exception is &quot;The validated map is
-     * empty&quot;.</p>
-     *
-     * @param <T> the map type
-     * @param map  the map to check, validated not null by this method
-     * @return the validated map (never {@code null} method for chaining)
-     * @throws NullPointerException if the map is {@code null}
-     * @throws IllegalArgumentException if the map is empty
-     * @see #notEmpty(Map, String, Object...)
-     */
-    public static <T extends Map<?, ?>> T notEmpty(final T map) {
-        return notEmpty(map, DEFAULT_NOT_EMPTY_MAP_EX_MESSAGE);
-    }
-    
+
     // notEmpty string
     //---------------------------------------------------------------------------------
     
@@ -393,26 +330,7 @@ public final class Validate {
     
     // notBlank string
     //---------------------------------------------------------------------------------
-    
-    /**
-     * <p>Validate that the specified argument character sequence is
-     * neither {@code null}, a length of zero (no characters), empty
-     * nor whitespace; otherwise throwing an exception with the specified
-     * message.
-     *
-     * <pre>Validate.notBlank(myString, "The string must not be blank");</pre>
-     *
-     * @param <T> the character sequence type
-     * @param chars  the character sequence to check, validated not null by this method
-     * @param message  the {@link String#format(String, Object...)} exception message if invalid, not null
-     * @param values  the optional values for the formatted exception message, null array not recommended
-     * @return the validated character sequence (never {@code null} method for chaining)
-     * @throws NullPointerException if the character sequence is {@code null}
-     * @throws IllegalArgumentException if the character sequence is blank
-     * @see #notBlank(CharSequence)
-     *
-     * @since 3.0
-     */
+
     public static <T extends CharSequence> T notBlank(final T chars, final String message, final Object... values) {
         if (chars == null) {
             throw new NullPointerException(String.format(message, values));
@@ -742,7 +660,7 @@ public final class Validate {
      * @throws IllegalArgumentException if argument does not contain only letter chars
      */
     public static void containsOnlyLetters(final String value, final String message) {
-        if (value != null && !value.matches("[a-zA-Z]")) {
+        if (value != null && !value.matches("[a-zA-Z]+")) {
             throw new IllegalArgumentException(String.format(message, value));
         }
     }
@@ -797,5 +715,110 @@ public final class Validate {
         Validate.notNull(value);
         if (!value.matches("[0-9]{8}"))
             throw new IllegalArgumentException(DEFAULT_IS_NOT_VALID_ARGENTINIAN_DNI_EX_MESSAGE);
+    }
+
+    /**
+     * Validates that the argument string is a valid argentinian DNI, if not throws and exception.
+     *
+     * <p>This method is useful when validating argentinian DNI input</p>
+     *
+     * <pre>Validate.isDNI("1206548")</pre>
+     *
+     * <p>The message of the exception is &quot;The validated object is not a valid Argentinian DNI&quot;</p>
+     * @param value the strings to be validated
+     * @throws IllegalArgumentException if argument does not contain only letter chars
+     */
+    public static void isDNI(String value, String message) {
+        Validate.notNull(value);
+        if (!value.matches("[0-9]{8}"))
+            throw new IllegalArgumentException(message);
+    }
+
+    /**
+     * Validates that the argument string is a valid argentinian DNI, if not throws and exception.
+     *
+     * <p>This method is useful when validating argentinian DNI input</p>
+     *
+     * <pre>Validate.isDNI("1206548")</pre>
+     *
+     * <p>The message of the exception is &quot;The validated object is not a valid Argentinian DNI&quot;</p>
+     * @param value the strings to be validated
+     * @throws IllegalArgumentException if argument does not contain only letter chars
+     */
+    public static void isDNI(int value) {
+       isDNI(String.valueOf(value));
+    }
+
+    /**
+     * Validates that the argument string is a valid argentinian DNI, if not throws and exception.
+     *
+     * <p>This method is useful when validating argentinian DNI input</p>
+     *
+     * <pre>Validate.isDNI("1206548")</pre>
+     *
+     * <p>The message of the exception is &quot;The validated object is not a valid Argentinian DNI&quot;</p>
+     * @param value the strings to be validated
+     * @throws IllegalArgumentException if argument does not contain only letter chars
+     */
+    public static void isDNI(int value, String message) {
+        isDNI(String.valueOf(value), message);
+    }
+
+    /**
+     * Validates that the argument is a valid argentinian plate, if not throws an exception.
+     *
+     * <p>This method is useful when validating if there will be no parsing errors.</p>
+     *
+     * <pre>Validate.isValidPlate("AA 1234 BB");</pre>
+     * <pre>Validate.isValidPlate("AAA 123");</pre>
+     *
+     * <p>The message of the exception is &quot;The validated input is not a valid plate&quot;
+     * followed by the method argument </p>
+     *
+     * @param input  the value to be validated
+     * @throws IllegalArgumentException if argument can not be matched to the argentinian plate formats
+     */
+    public static void isValidPlate(String input) {
+        if (!input.matches("([a-zA-z]{2} [0-9]{3} [a-zA-Z]{2}|[a-zA-Z]{3} [0-9]{3})"))
+            throw new IllegalArgumentException(String.format(DEFAULT_IS_NOT_VALID_PLATE, input));
+    }
+
+    public static void containsOnlyNumbers(String input) {
+        if (!input.matches("[0-9]+"))
+            throw new IllegalArgumentException(String.format(DEFAULT_IS_NOT_ONLY_NUMBER_STRING_EX_MESSAGE, input));
+    }
+
+    /**
+     * Validates that the argument is a valid boolean expression, if not throws an exception.
+     *
+     * <p>This method is useful when validating if there will be no parsing errors.</p>
+     *
+     * <pre>Validate.isBoolean("yes");</pre>
+     * <pre>Validate.isBoolean("no");</pre>
+     * <pre>Validate.isBoolean("0");</pre>
+     * <pre>Validate.isBoolean("1");</pre>
+     * <pre>Validate.isBoolean("si");</pre>
+     *
+     * <p>The message of the exception is &quot;The validated string is not a valid boolean expression&quot;
+     * followed by the method argument </p>
+     *
+     * @param input  the value to be validated
+     * @throws IllegalArgumentException if argument can not be represented as a boolean
+     */
+    public static void isBoolean(String input) {
+        switch (input.trim().toLowerCase()) {
+            case "yes":
+                    return;
+            case "no":
+                return;
+            case "si":
+                return;
+            case "0":
+                return;
+            case "1":
+                return;
+            default:
+                throw new IllegalArgumentException(String.format(DEFAULT_IS_NOT_VALID_BOOLEAN_EXPRESSION_EX_MESSAGE, input));
+        }
     }
 }

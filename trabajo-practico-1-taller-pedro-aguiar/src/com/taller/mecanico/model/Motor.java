@@ -10,15 +10,18 @@ public class Motor extends Componente {
         this.cilindros = cilindros;
     }
     
-    public Motor(Vehiculo vehiculo) {
-        super(vehiculo);
-    }
-    
     public int getCilindros() {
         return cilindros;
     }
     
     public void setCilindros(int cilindros) {
         this.cilindros = cilindros;
+    }
+
+    @Override
+    public String toString() {
+        return "Motor{" +
+                "cilindros= " + this.getCilindros() +
+                "}";
     }
 }

@@ -12,8 +12,8 @@ public class Mecanico extends Persona {
         this.habilidades = habilidades;
     }
 
-    public Mecanico(int id, String nombre, String apellido, int dni, Set<Habilidad> habilidades) {
-        super(id, nombre, apellido, dni);
+    public Mecanico(String nombre, String apellido, int dni, Set<Habilidad> habilidades) {
+        super(nombre, apellido, dni);
         this.habilidades = habilidades;
     }
 }
