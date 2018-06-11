@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ClientService {
 
-    public static final Map<UUID, Cliente> clientes = new ConcurrentHashMap<>();
+    public static final Map<Integer, Cliente> clientes = new ConcurrentHashMap<>();
 
     public static UUID registerClient() {
         MenuView.displayClientRegistrationForm();
@@ -52,7 +52,7 @@ public class ClientService {
 
     private static UUID persistClient(String nombre, String appellido, int dni) {
         Cliente client = new Cliente(nombre, appellido, dni);
-        clientes.putIfAbsent(client.getId(), client);
+        clientes.putIfAbsent(client.getDni(), client);
         System.out.println("Se ha registrado exitosamente: " + client.toString());
         return client.getId();
     }
@@ -68,6 +68,7 @@ public class ClientService {
     }
 
     public static void unRegisterClient(int input) {
-        clientes.values().removeIf(cliente -> cliente.getDni() == input);
+        VehicleService.vehiculos.removeIf(vehiculo -> vehiculo.getVin() == clientes.get(input).getVehiculo().getVin());
+        clientes.remove(input);
     }
 }

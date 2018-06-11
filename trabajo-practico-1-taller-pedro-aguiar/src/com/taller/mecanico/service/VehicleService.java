@@ -13,7 +13,7 @@ public class VehicleService {
 
     private static UUID currentClient = null;
 
-    private static final List<Vehiculo> vehiculos = new ArrayList<>();
+    public static final List<Vehiculo> vehiculos = new ArrayList<>();
 
     public static Automovil getRandomCar() {
         throw new NotImplementedException();
