@@ -2,6 +2,7 @@ package com.taller.mecanico.service;
 
 import com.taller.mecanico.lib.Validate;
 import com.taller.mecanico.model.Cliente;
+import com.taller.mecanico.model.exception.VehicleTypeNotFound;
 import com.taller.mecanico.view.MenuView;
 
 import java.util.*;
@@ -9,52 +10,47 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ClientService {
 
-    public static final Map<UUID, Cliente> clientes = new ConcurrentHashMap<>();
+    public static final Map<Integer, Cliente> clientes = new ConcurrentHashMap<>();
 
-    public static UUID registerClient() {
+    public static int registerClient() {
         MenuView.displayClientRegistrationForm();
         Scanner scanner = new Scanner(System.in);
-        String input = scanner.nextLine();
-        List<String> parsedInput = parseInput(input);
-        String nombre = parsedInput.get(0);
-        String apellido = parsedInput.get(1);
-        String dni = parsedInput.get(2);
         try {
+            String input = scanner.nextLine();
+            List<String> parsedInput = parseInput(input);
+            String nombre = parsedInput.get(0);
+            String apellido = parsedInput.get(1);
+            String dni = parsedInput.get(2);
             validateRegisterClientInput(nombre, apellido, dni);
             return persistClient(nombre, apellido, Integer.valueOf(dni));
-        } catch (IllegalArgumentException e) {
-            registerClient();
+        } catch (InputMismatchException | IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+            return registerClient();
         }
-        return null;
     }
 
-    private static void validateRegisterClientInput(String nombre, String apellido, String DNI) {
+    private static void validateRegisterClientInput(String nombre, String apellido, String DNI) throws IllegalArgumentException {
         Validate.notBlank(nombre, "Datos invalidos, Porfavor intentelo nuevamente");
         Validate.notBlank(apellido, "Datos invalidos, Porfavor intentelo nuevamente");
         Validate.notBlank(DNI, "Datos invalidos, Porfavor intentelo nuevamente");
-        Validate.containsOnlyLetters(new String[]{nombre, apellido});
+        Validate.containsOnlyLetters(new String[]{nombre.replace(" ", ""), apellido});
         Validate.isDNI(DNI);
     }
 
     private static List<String> parseInput(String input) {
         String[] splitInput = input.split(",");
-        try {
-            Validate.isTrue(splitInput.length == 3, "Datos invalidos, porfavor intentelo nuevamente.");
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
-            registerClient();
-        }
+        Validate.isTrue(splitInput.length == 3, "Datos invalidos, porfavor intentelo nuevamente.");
         String nombre = splitInput[0].trim();
         String apellido = splitInput[1].trim();
         String dni = splitInput[2].trim();
         return Arrays.asList(nombre, apellido, dni);
     }
 
-    private static UUID persistClient(String nombre, String appellido, int dni) {
+    private static int persistClient(String nombre, String appellido, int dni) {
         Cliente client = new Cliente(nombre, appellido, dni);
-        clientes.putIfAbsent(client.getId(), client);
+        clientes.putIfAbsent(client.getDni(), client);
         System.out.println("Se ha registrado exitosamente: " + client.toString());
-        return client.getId();
+        return client.getDni();
     }
 
     public static void showCarRepairProgress(int input) {
@@ -67,7 +63,9 @@ public class ClientService {
         });
     }
 
-    public static void unRegisterClient(int input) {
-        clientes.values().removeIf(cliente -> cliente.getDni() == input);
+    public static void unRegisterClient(int dni) {
+        Cliente client = clientes.get(dni);
+        VehicleService.vehiculos.remove(client.getVehiculo());
+        clientes.values().removeIf(cliente -> cliente.getDni() == dni);
     }
 }

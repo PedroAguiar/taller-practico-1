@@ -11,9 +11,9 @@ import java.util.*;
 
 public class VehicleService {
 
-    private static UUID currentClient = null;
+    private static int currentClient;
 
-    private static final List<Vehiculo> vehiculos = new ArrayList<>();
+    public static final List<Vehiculo> vehiculos = new ArrayList<>();
 
     public static Automovil getRandomCar() {
         throw new NotImplementedException();
@@ -23,26 +23,26 @@ public class VehicleService {
         throw new NotImplementedException();
     }
 
-    public static void registerVehicle(UUID clientId) {
-        currentClient = clientId;
+    public static void registerVehicle(int clientDni) {
+        currentClient = clientDni;
         MenuView.displayVehicleRegistrationForm();
         Scanner scanner = new Scanner(System.in);
-        String input = scanner.nextLine();
-        List<String> parsedInput = parseInput(input);
-        validateInput(parsedInput);
-        Cliente cliente = ClientService.clientes.get(clientId);
-        persistVehicle(cliente, parsedInput);
+        try {
+            String input = scanner.nextLine();
+            List<String> parsedInput = parseInput(input);
+            validateInput(parsedInput);
+            Cliente cliente = ClientService.clientes.get(clientDni);
+            persistVehicle(cliente, parsedInput);
+        } catch (IllegalArgumentException | VehicleTypeNotFound e) {
+            System.out.println(e.getMessage());
+            registerVehicle(clientDni);
+        }
     }
 
-    private static void persistVehicle(Cliente cliente, List<String> vehicleAttributes) {
+    private static void persistVehicle(Cliente cliente, List<String> vehicleAttributes) throws VehicleTypeNotFound {
         int vehicleTypeId = Integer.valueOf(vehicleAttributes.get(5));
         TipoDeVehiculo tipoDeVehiculo = null;
-        try {
-            tipoDeVehiculo = TipoDeVehiculo.findVehicleType(vehicleTypeId);
-        } catch (VehicleTypeNotFound e) {
-            System.out.println(e.getMessage());
-            return;
-        }
+        tipoDeVehiculo = TipoDeVehiculo.findVehicleType(vehicleTypeId);
         String patente = vehicleAttributes.get(0);
         int cantidadDeCilindros = Integer.valueOf(vehicleAttributes.get(1));
         int litrosDelTanque = Integer.valueOf(vehicleAttributes.get(2));
@@ -55,15 +55,15 @@ public class VehicleService {
         switch (tipoDeVehiculo) {
             case AUTOMOVIL:
                 Automovil auutomovil = new Automovil(patente, componentes, tipoDeEncendido);
-                System.out.println("Vehiculo registrado exitosamente" + auutomovil.toString());
                 cliente.setVehiculo(auutomovil);
                 vehiculos.add(auutomovil);
+                System.out.println("Vehiculo registrado exitosamente" + auutomovil.toString());
               break;
             case MOTOCICLETA:
                 Motocicleta motocicleta = new Motocicleta(patente, componentes, tipoDeEncendido);
-                System.out.println("Vehiculo registrado exitosamete" + motocicleta.toString());
                 cliente.setVehiculo(motocicleta);
                 vehiculos.add(motocicleta);
+                System.out.println("Vehiculo registrado exitosamete" + motocicleta.toString());
               break;
             default:
                 throw new IllegalArgumentException(
@@ -80,28 +80,18 @@ public class VehicleService {
         return Arrays.asList(new Motor(cantidadDeCilindros), new Tanque(litrosDelTanque));
     }
 
-    private static void validateInput(List<String> input) {
-        try {
-            Validate.isValidPlate(input.get(0));
-            Validate.containsOnlyNumbers(input.get(1));
-            Validate.containsOnlyNumbers(input.get(2));
-            Encendido.findStartType(Integer.valueOf(input.get(3)));
-            Validate.isBoolean(input.get(4));
-            TipoDeVehiculo.findVehicleType(Integer.valueOf(input.get(5)));
-        } catch (IllegalArgumentException | VehicleTypeNotFound e) {
-            System.out.println(e.getMessage());
-            registerVehicle(currentClient);
-        }
+    private static void validateInput(List<String> input) throws IllegalArgumentException, VehicleTypeNotFound {
+        Validate.isValidPlate(input.get(0));
+        Validate.containsOnlyNumbers(input.get(1));
+        Validate.containsOnlyNumbers(input.get(2));
+        Encendido.findStartType(Integer.valueOf(input.get(3)));
+        Validate.isBoolean(input.get(4));
+        TipoDeVehiculo.findVehicleType(Integer.valueOf(input.get(5)));
     }
 
-    private static List<String> parseInput(String input) {
+    private static List<String> parseInput(String input) throws IllegalArgumentException {
         String[] splitInput = input.split(",");
-        try {
-            Validate.isTrue(splitInput.length == 6);
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
-            registerVehicle(currentClient);
-        }
+        Validate.isTrue(splitInput.length == 6, "Datos incorrectos, porfavor intentelo nuevamente.");
         String numeroDePatente = splitInput[0].trim();
         String cantidadDeCilindros = splitInput[1].trim();
         String cantidadDeListrosDelTanque = splitInput[2].trim();
